@@ -1,5 +1,5 @@
 import { Context, Service } from 'cordis'
-import { AppInfo, DeviceInfo } from '../../main/qqProtocol/direct-lib/appInfo'
+import { AppInfo, DeviceInfo } from '../../main/qqProtocol/protocol-support/appInfo'
 
 declare module 'cordis' {
   interface Context {
