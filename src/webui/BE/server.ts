@@ -10,7 +10,6 @@ import { authMiddleware } from './auth'
 import { serializeResult } from './utils'
 import {
   createConfigRoutes,
-  createAuthTokenRoutes,
   createDashboardRoutes,
   createLoginRoutes,
   createLogsRoutes,
@@ -65,7 +64,7 @@ export interface WebuiServerConfig extends WebUIConfig {
 }
 
 export class WebuiServer extends Service {
-  // 登录前 WebUI 也要能起 (要给用户看/输 auth_token / 扫码), 所以只把登录前就能 ready 的依赖标 required.
+  // Pre-login WebUI must remain available for external PMHQ login and connection diagnostics.
   // 其余 nt* API 依赖 store, 而 store 又依赖 database, database 只在 loadPluginAfterLogin 才加载;
   // 若列进 inject 会一直卡到登录成功才启动. cordis object-form inject 里 value 无论 true/false
   // 都算 required, 所以真正 optional 的依赖必须从 inject 里彻底移除, handler 里按需 ctx.get(...) 拿.
@@ -117,7 +116,6 @@ export class WebuiServer extends Service {
 
     // 注册路由
     this.app.route('/api', createConfigRoutes(ctx))
-    this.app.route('/api', createAuthTokenRoutes())
     this.app.route('/api', createLoginRoutes(ctx))
     this.app.route('/api', createDashboardRoutes(ctx))
     this.app.route('/api', createLogsRoutes(ctx))
