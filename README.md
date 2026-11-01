@@ -1,3 +1,5 @@
+> 本分支：历史版无需平台注册的自托管兼容候选。状态、构建与限制见 [README.selfhost.md](README.selfhost.md)。
+
 # LLBot
 ![Node.js Version](https://img.shields.io/badge/node-%3E=24.x-brightgreen)
 

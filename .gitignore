@@ -18,3 +18,14 @@ data
 llonebot-dist.tgz
 script/ffmpeg/
 .claude/
+# Local selfhost tooling, evidence and native binaries (not redistributed)
+selfhost/cache/
+selfhost/tools/
+selfhost/native/
+selfhost/*.log
+selfhost/*-audit.json
+selfhost/*-metadata.json
+selfhost/download-audit.json
+selfhost/build-report.json
+legacy-*-research.json
+__pycache__/
