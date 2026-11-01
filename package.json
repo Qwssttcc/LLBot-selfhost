@@ -1,15 +1,14 @@
 {
   "name": "lucky-lillia-bot",
-  "version": "8.0.0",
+  "version": "8.3.2-selfhost.1",
   "type": "module",
-  "description": "",
+  "description": "External-PMHQ-only LLBot controller; no platform registration client",
   "main": "dist/llbot.js",
   "scripts": {
     "dev": "tsx watch src/main/main.ts",
     "build": "vite build",
     "dev-webui": "npm --prefix src/webui/FE run dev",
     "build-webui": "npm --prefix src/webui/FE run build",
-    "postinstall": "npm --prefix src/webui/FE install",
     "format": "prettier -cw .",
     "check": "tsc",
     "check:webui": "npm --prefix src/webui/FE run check",
