@@ -1,5 +1,5 @@
 """Build an external-PMHQ-only controller. Never starts or deploys QQ."""
-import argparse,json,os,subprocess,shutil
+import argparse,json,os,subprocess,shutil,sys
 from pathlib import Path
 from datetime import datetime,timezone
 from prepare import ROOT,MANIFEST,prepare_tools
@@ -15,6 +15,7 @@ try:
   with (ROOT/'selfhost'/f'{name}.log').open('w',encoding='utf-8') as out:res=subprocess.run(cmd,cwd=cwd,env=env,stdout=out,stderr=subprocess.STDOUT)
   report['steps'].append({'name':name,'exit_code':res.returncode,'known_upstream_typecheck_failure':known_failure and res.returncode!=0});print(f'{name}: {res.returncode}',flush=True)
   if not known_failure:res.check_returncode()
+ res=subprocess.run([sys.executable,str(ROOT/'selfhost/verify_runtime.py'),'--node',node],cwd=ROOT,env=env);report['steps'].append({'name':'runtime-audit','exit_code':res.returncode});res.check_returncode()
  shutil.copy2(ROOT/'LICENSE',ROOT/'dist/LICENSE');shutil.copy2(ROOT/'README.selfhost.md',ROOT/'dist/README.selfhost.md')
  report['status']='experimental_build_verified_external_qq_backend_required'
 finally:
