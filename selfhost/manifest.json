@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "fork_version": "7.12.15-selfhost.1",
+  "status": "build_verified_runtime_unverified",
+  "upstream": {
+    "repository": "https://github.com/LLOneBot/LuckyLilliaBot",
+    "tag": "v7.12.15",
+    "commit": "e0d5d2067651b0e526c841addaa3b7de51d2dd8c"
+  },
+  "node_major": 24,
+  "artifacts": {
+    "yarn": {
+      "name": "@yarnpkg/cli-dist",
+      "version": "4.14.1",
+      "url": "https://registry.npmjs.org/@yarnpkg/cli-dist/-/cli-dist-4.14.1.tgz",
+      "sha256": "050441cd452e222ec1b8409415174e81a15a1e8ca5d76236c89f1a4cc9984bcb",
+      "cache_file": "yarnpkg-cli-dist-4.14.1.tgz",
+      "published_at": "2026-04-17T06:01:18.409Z"
+    },
+    "pmhq_linux_x64": {
+      "name": "pmhq-dist-linux-x64",
+      "version": "7.3.2",
+      "url": "https://registry.npmjs.org/pmhq-dist-linux-x64/-/pmhq-dist-linux-x64-7.3.2.tgz",
+      "sha256": "ceff8ec6d83a65daa7bc129129167949f9753d6a2bc237858d09216f13897a18",
+      "cache_file": "pmhq-dist-linux-x64-7.3.2.tgz",
+      "published_at": "2026-03-30T14:59:37.128Z",
+      "members": {
+        "package/pmhq-linux-x64": "8ba6fea8f69542259bff3da2fb4be567794147cd18000300e3dab9fb42f6c391",
+        "package/libpmhq.so": "c9c0ec105195940ee5250cf2944d589f0b9252eb3f19ac1f4f7d8d76091529f3"
+      }
+    },
+    "pnpm": {
+      "name": "pnpm",
+      "version": "11.25.0",
+      "url": "https://registry.npmjs.org/pnpm/-/pnpm-11.25.0.tgz",
+      "sha256": "33dd0748f27e7916c4f1c8b6943461983e3453b06bbda6312a6280130b4881e5",
+      "cache_file": "pnpm-11.25.0.tgz"
+    }
+  }
+}
