@@ -1,5 +1,5 @@
 import { Action, Oidb } from '@/ntqqapi/proto'
-import { Cmd } from '../direct-lib/cmd'
+import { Cmd } from '../protocol-support/cmd'
 import { selfInfo } from '@/common/globalVars'
 import type { QQProtocolBase } from '../base'
 

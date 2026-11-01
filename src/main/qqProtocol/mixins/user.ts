@@ -1,5 +1,5 @@
 import { Action, Oidb } from '@/ntqqapi/proto'
-import { Cmd } from '../direct-lib/cmd'
+import { Cmd } from '../protocol-support/cmd'
 import type { QQProtocolBase } from '../base'
 import { Dict, isNonNullable } from 'cosmokit'
 import { selfInfo } from '@/common/globalVars'

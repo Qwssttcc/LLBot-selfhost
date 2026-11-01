@@ -1,5 +1,5 @@
 import { Oidb, Media } from '@/ntqqapi/proto'
-import { Cmd } from '../direct-lib/cmd'
+import { Cmd } from '../protocol-support/cmd'
 import { selfInfo } from '@/common/globalVars'
 import { InferProtoModelInput } from '@saltify/typeproto'
 import type { QQProtocolBase } from '../base'

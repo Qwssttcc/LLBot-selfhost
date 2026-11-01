@@ -1,5 +1,5 @@
 import { Oidb } from '@/ntqqapi/proto'
-import { Cmd } from '../direct-lib/cmd'
+import { Cmd } from '../protocol-support/cmd'
 import type { QQProtocolBase } from '../base'
 
 export function SystemMixin<T extends abstract new (...args: any[]) => QQProtocolBase>(Base: T) {

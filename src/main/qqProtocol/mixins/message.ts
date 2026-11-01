@@ -1,11 +1,11 @@
 import { Action, Msg, Oidb } from '@/ntqqapi/proto'
-import { Cmd } from '../direct-lib/cmd'
+import { Cmd } from '../protocol-support/cmd'
 import { selfInfo } from '@/common/globalVars'
 import { randomBytes } from 'node:crypto'
 import { gunzipSync, gzipSync } from 'node:zlib'
 import { InferProtoModelInput } from '@saltify/typeproto'
-import { AppInfo, DeviceInfo } from '../direct-lib/appInfo'
-import { getActiveProfile } from '../direct-lib/profiles'
+import { AppInfo, DeviceInfo } from '../protocol-support/appInfo'
+import { getActiveProfile } from '../protocol-support/profiles'
 import type { QQProtocolBase } from '../base'
 
 export function MessageMixin<T extends abstract new (...args: any[]) => QQProtocolBase>(Base: T) {
