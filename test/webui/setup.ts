@@ -42,7 +42,6 @@ vi.mock('@/main/log', () => ({
 
 vi.mock('@/common/utils/environment', () => ({
   isDockerEnvironment: vi.fn(() => false),
-  isPmhqMode: vi.fn(() => false),
-  getPmhqTarget: vi.fn(() => null),
-  isDevMode: vi.fn(() => false),
+  isPmhqMode: vi.fn(() => true),
+  getPmhqTarget: vi.fn(() => ({ host: '127.0.0.1', port: '13000' })),
 }))
