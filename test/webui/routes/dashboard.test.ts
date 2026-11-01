@@ -75,12 +75,12 @@ describe('dashboard routes', () => {
     }
 
     // environment 整个模块被 test/unit/setup.ts mock 掉了, 改 process.argv 不生效
-    it('reports the active protocol in direct mode', async () => {
+    it('never advertises Direct mode', async () => {
       mockAppReady()
       vi.mocked(getProtocol).mockReturnValue('macos')
       const data = await stats()
-      expect(data.mode).toBe('direct')
-      expect(data.protocol).toBe('macos')
+      expect(data.mode).toBe('pmhq')
+      expect(data.protocol).toBeUndefined()
     })
 
     it('omits the protocol in PMHQ mode', async () => {
