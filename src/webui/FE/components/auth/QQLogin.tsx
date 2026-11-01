@@ -54,7 +54,6 @@ const QQLogin: React.FC<QQLoginProps> = ({ onLoginSuccess }) => {
   const isPollingLoginRef = useRef(false);
   const hasFetchedRef = useRef(false);
   const generateQrCodeRef = useRef<(() => void) | undefined>(undefined);
-  const [authLoginError, setAuthLoginError] = useState('');
   // 登录成功但账号配置里 WebUI 被关闭 (enable=false): 不跳主页 (跳过去也是 502), 展示提示卡片
   const [webuiClosed, setWebuiClosed] = useState<null | { uin: string; host: string; port: number }>(null);
   const webuiClosedRef = useRef(false);
@@ -254,27 +253,6 @@ const QQLogin: React.FC<QQLoginProps> = ({ onLoginSuccess }) => {
     generateQrCodeRef.current = generateQrCode;
   }, [generateQrCode]);
 
-  // 轮询 auth token 状态: 展示登录/sign 错误 (如可用 QQ 数量上限) 及验证服务不可达提示; 自愈后自动清除
-  useEffect(() => {
-    let stopped = false;
-    const poll = async () => {
-      // WebUI 已被账号配置关闭: 后端即将关停, 别再轮询 (否则 502 刷屏)
-      if (stopped || webuiClosedRef.current) return;
-      try {
-        const res = await apiFetch<{ loginError: string; validation: string; message: string }>('/api/auth-token/status');
-        if (!stopped && res.success) {
-          const d = res.data;
-          setAuthLoginError(d.loginError || (d.validation === 'error' ? (d.message || '') : ''));
-        }
-      } catch {
-        // ignore
-      }
-      if (!stopped && !webuiClosedRef.current) setTimeout(poll, 3000);
-    };
-    poll();
-    return () => { stopped = true; };
-  }, []);
-
   if (webuiClosed) {
     return (
       <div className="relative min-h-screen flex flex-col items-center justify-center p-5">
@@ -296,11 +274,7 @@ const QQLogin: React.FC<QQLoginProps> = ({ onLoginSuccess }) => {
     <div className="relative min-h-screen flex flex-col items-center justify-center p-5">
       <div className="glass glass-regular r-window p-10 min-w-[320px] text-center relative z-10">
         <GlassLens />
-        {authLoginError && (
-          <div className="mb-5 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm text-left">
-            {authLoginError}
-          </div>
-        )}
+
         {/* Quick Login Mode */}
         {loginMode === 'quick' && (
           <div className="flex flex-col items-center gap-6">
