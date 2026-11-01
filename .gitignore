@@ -41,3 +41,6 @@ selfhost/*.log
 selfhost/build-report.json
 selfhost/smoke-data/
 selfhost/upload-plan.json
+
+__pycache__/
+*.py[cod]
