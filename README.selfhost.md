@@ -44,7 +44,7 @@ node llbot.js --pmhq-host=127.0.0.1 --pmhq-port=13000
 
 **保留 WebUI 登录密码及 Milky / OneBot / Satori 的本地访问令牌。** “无需平台注册”不意味着公开管理接口或消息 API 可以免认证。默认 WebUI 仍监听 127.0.0.1，Milky默认关闭。
 
-仓库原来的云镜像发布及依赖真实 QQ 的端到端工作流已移到 `.github/upstream-workflows/` 留存，避免 Fork 后误向原项目发布。原 `script/install-llbot-docker.sh` 会查询最新版本，**不适用于本分支**。本分支不提供未经验证的生产一键部署或自动更新。
+仓库原来的云镜像发布及依赖真实 QQ 的端到端工作流已在 `.github/workflows/` 改为 `.yml.disabled` 后缀留存，避免 Fork 后误向原项目发布。原 `script/install-llbot-docker.sh` 会查询最新版本，**不适用于本分支**。本分支不提供未经验证的生产一键部署或自动更新。
 
 ## 后续验收
 
