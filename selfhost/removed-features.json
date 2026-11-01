@@ -1,0 +1,16 @@
+{
+  "upstream_tag": "v8.3.2",
+  "removed_tests": [
+    "test/unit/qqProtocol/cmdNotPermitted.test.ts",
+    "test/unit/qqProtocol/directResilience.test.ts",
+    "test/unit/qqProtocol/directSession.test.ts",
+    "test/unit/qqProtocol/macosEskLifecycle.test.ts",
+    "test/unit/qqProtocol/signTokenRouting.test.ts"
+  ],
+  "removed_packaging": [
+    ".github/workflows",
+    "docker",
+    "script"
+  ],
+  "reason": "Direct/native signing and provider registration are not part of this external-PMHQ-only distribution. Other unit and WebUI tests remain enabled."
+}
