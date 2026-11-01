@@ -6,7 +6,6 @@ import {
   OneBotConfigNew,
   OtherConfig,
   TokenDialog,
-  AuthTokenDialog,
   ChangePasswordDialog,
   QQLogin,
   ToastContainer,
@@ -50,9 +49,6 @@ function App() {
   const [showMilkyToken, setShowMilkyToken] = useState(false);
   const [showMilkyWebhookToken, setShowMilkyWebhookToken] = useState(false);
   const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
-  const [showAuthTokenDialog, setShowAuthTokenDialog] = useState(false);
-  const [authTokenReason, setAuthTokenReason] = useState<'missing' | 'invalid'>('missing');
-  const [authTokenPageUrl, setAuthTokenPageUrl] = useState('');
   const [qqVersion, setQqVersion] = useState<string>('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -159,34 +155,6 @@ function App() {
     checkLoginStatus();
   }, []);
 
-  // 未登录时轮询 auth token 状态: 只在缺失/无效时弹强制录入框; 自愈(转 valid/validating)或登录中则关掉,
-  // 避免弹框盖住二维码造成软锁死. 网络错误(error)不阻塞, 由 QQLogin 横幅提示. 在线则刷新进主界面.
-  useEffect(() => {
-    if (isLoggedIn || checkingLogin) return;
-    let stop = false;
-    const poll = async () => {
-      try {
-        const st = await apiFetch<{ applicable: boolean; online: boolean; hasToken: boolean; validation: string; authTokenPageUrl?: string }>('/api/auth-token/status');
-        if (!stop && st.success) {
-          const d = st.data;
-          if (d.online) { window.location.reload(); return; }
-          if (d.authTokenPageUrl) setAuthTokenPageUrl(d.authTokenPageUrl);
-          if (d.applicable && (!d.hasToken || d.validation === 'invalid')) {
-            setAuthTokenReason(d.validation === 'invalid' ? 'invalid' : 'missing');
-            setShowAuthTokenDialog(true);
-          } else if (d.validation === 'valid') {
-            // 自愈/登录中: 关掉弹框露出二维码. validating/error 不动 (交给对话框自身轮询/QQLogin 横幅),
-            // 避免把用户正在提交的弹框中途关掉.
-            setShowAuthTokenDialog(false);
-          }
-        }
-      } catch { /* ignore */ }
-      if (!stop) setTimeout(poll, 3000);
-    };
-    poll();
-    return () => { stop = true; };
-  }, [isLoggedIn, checkingLogin]);
-
   // 保存配置
   const handleSave = useCallback(async (configToSave?: Config, emailConfigToSave?: EmailConfig | null) => {
     try {
@@ -268,14 +236,6 @@ function App() {
 
         {/* QQLogin 组件内部已有自己的背景 */}
         <QQLogin onLoginSuccess={handleLoginSuccess} />
-
-        {/* Auth Token 强制录入弹框 - 未登录且 token 缺失/无效时挡在扫码界面之上 */}
-        <AuthTokenDialog
-          visible={showAuthTokenDialog}
-          reason={authTokenReason}
-          authTokenPageUrl={authTokenPageUrl}
-          onSuccess={() => window.location.reload()}
-        />
 
         {/* Password Dialog - 支持 401 设置密码 */}
         <TokenDialog
