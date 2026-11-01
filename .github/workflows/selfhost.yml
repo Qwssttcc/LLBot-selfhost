@@ -1,0 +1,23 @@
+name: Build legacy selfhost candidate
+on:
+  workflow_dispatch:
+  push:
+    branches: [selfhost/no-platform-registration]
+  pull_request:
+    branches: [selfhost/no-platform-registration]
+permissions:
+  contents: read
+jobs:
+  isolated-build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s selfhost -p "test_*.py"
+      - run: python selfhost/build.py
