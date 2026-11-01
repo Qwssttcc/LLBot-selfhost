@@ -40,3 +40,4 @@ selfhost/tools/
 selfhost/*.log
 selfhost/build-report.json
 selfhost/smoke-data/
+selfhost/upload-plan.json
