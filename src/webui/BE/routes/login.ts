@@ -9,6 +9,8 @@ import JSON5 from 'json5'
 export function createLoginRoutes(ctx: Context): Hono {
   const router = new Hono()
 
+  router.get('/backend-status', (c) => c.json({ success: true, data: { mode: 'external-pmhq', connected: ctx.qqProtocol.get_is_connected(), online: selfInfo.online } }))
+
   // 获取登录二维码
   router.get('/login-qrcode', async (c) => {
     try {
