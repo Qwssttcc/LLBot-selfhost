@@ -8,50 +8,28 @@ export function isDockerEnvironment(): boolean {
     }
 }
 
-/**
- * 解析 PMHQ 连接目标, 返 null = 没传 --pmhq-port = 直连模式。
- * 空格和等号两种写法都认 (跟 --qq 对齐):
- *   --pmhq-port <port> / --pmhq-port=<port> / --pmhq-host <host> / --pmhq-host=<host>
- * 只要出现过 --pmhq-port 就算 PMHQ 模式, 没给值就用默认端口 -- 绝不因为写法不对静默退回直连
- * (那样会一路扫码连上 msfwifi 才发现跑的是直连)。
- */
-export function getPmhqTarget(argv: string[] = process.argv): { host: string; port: string } | null {
-    let requested = false
-    let port = '13000'
+/** External PMHQ is required; no argument enables native signing. */
+export function getPmhqTarget(argv: string[] = process.argv): { host: string; port: string } {
     let host = '127.0.0.1'
+    let port = '13000'
     for (let i = 0; i < argv.length; i++) {
         const a = argv[i]
-        // 值不能是下一个 flag: `--pmhq-port --dev` 不该把 "--dev" 当端口
-        const next = argv[i + 1] && !argv[i + 1].startsWith('-') ? argv[i + 1] : undefined
-        if (a === '--pmhq-port') {
-            requested = true
-            if (next) port = next
-        } else if (a.startsWith('--pmhq-port=')) {
-            requested = true
-            const v = a.slice('--pmhq-port='.length)
-            if (v) port = v
-        } else if (a === '--pmhq-host') {
-            if (next) host = next
-        } else if (a.startsWith('--pmhq-host=')) {
-            const v = a.slice('--pmhq-host='.length)
-            if (v) host = v
-        }
+        if (a === '--pmhq-host' || a === '--pmhq-port') {
+            const value = argv[i + 1]
+            if (!value || value.startsWith('-')) throw new Error(`${a} requires a value`)
+            if (a === '--pmhq-host') host = value
+            else port = value
+            i++
+        } else if (a.startsWith('--pmhq-host=')) host = a.slice('--pmhq-host='.length)
+        else if (a.startsWith('--pmhq-port=')) port = a.slice('--pmhq-port='.length)
     }
-    return requested ? { host, port } : null
+    if (!host || /[\s/@?#]/.test(host) || host.includes('://')) throw new Error('Invalid PMHQ host')
+    if (!/^\d+$/.test(port) || Number(port) < 1 || Number(port) > 65535) throw new Error('Invalid PMHQ port')
+    return { host, port: String(Number(port)) }
 }
 
-/** PMHQ 模式必须传 --pmhq-port (CLI/Desktop/docker 启动脚本都会带), 以此区分直连模式 */
-export function isPmhqMode(): boolean {
-    return getPmhqTarget() !== null
-}
-
-/**
- * `--dev`: run against a local manager -- loads the dev sign-proxy build and reads data/auth_token.dev.txt.
- * argv only, no env fallback: a stray variable on a deployment must never switch it on.
- */
-export function isDevMode(argv: string[] = process.argv): boolean {
-    return argv.includes('--dev')
-}
+/** This build has no Direct implementation. */
+export function isPmhqMode(): boolean { return true }
 
 /**
  * 从 process.argv 里解析指定 uin. 支持 4 种写法:
@@ -67,39 +45,6 @@ export function getSpecifiedUin(argv: string[] = process.argv): string | undefin
         if (a.startsWith('--qq=')) return a.slice('--qq='.length)
     }
     return undefined
-}
-
-export type Cdn = 'cf' | 'china'
-
-/**
- * 解析接入点 CDN, 传给 SignProxy init。
- * 优先级: argv `--cdn china` / `--cdn=china` > 环境变量 CDN > 默认 cf。
- * 环境变量名 (CDN/cdn) 与值 (china/CHINA/...) 都大小写无关。
- * cf (默认) = api-auth.luckylillia.com; china = llbot-api-auth.wumiao.wang。
- * 非 cf/china 的值回退到 cf (SignProxy 侧还会再校验一次并对非法值报错)。
- */
-export function getCdn(argv: string[] = process.argv, env: NodeJS.ProcessEnv = process.env): Cdn {
-    let raw: string | undefined
-    for (let i = 0; i < argv.length; i++) {
-        const a = argv[i]
-        if (a === '--cdn' && i + 1 < argv.length) { raw = argv[i + 1]; break }
-        if (a.startsWith('--cdn=')) { raw = a.slice('--cdn='.length); break }
-    }
-    // argv 未指定时回退环境变量; 变量名大小写无关 (CDN / cdn / Cdn 均可)
-    if (raw === undefined) {
-        const key = Object.keys(env).find(k => k.toLowerCase() === 'cdn')
-        if (key) raw = env[key]
-    }
-    return raw?.trim().toLowerCase() === 'china' ? 'china' : 'cf'
-}
-
-/**
- * Web page where users obtain an Auth Token, on the same access point as getCdn().
- * This is the manager frontend host, not the API host SignProxy talks to; the two are
- * deployed on separate domains (see ManagerServer deploy/deploy-edgeone-pages.sh).
- */
-export function getAuthTokenPageUrl(cdn: Cdn = getCdn()): string {
-    return cdn === 'china' ? 'https://llbot.wumiao.wang' : 'https://auth.luckylillia.com'
 }
 
 export type ProtocolId = 'linux' | 'windows' | 'macos' | 'watch'
