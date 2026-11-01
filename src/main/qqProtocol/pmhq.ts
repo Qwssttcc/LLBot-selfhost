@@ -12,7 +12,7 @@ import type {
 } from './types'
 import { Context } from 'cordis'
 import { getPmhqTarget } from '@/common/utils/environment'
-import { buildSsoInfoSync } from './direct-lib'
+import { buildSsoInfoSync } from './protocol-support/ssoInfoSync'
 import { QQProtocolBase } from './base'
 
 /**
@@ -33,8 +33,7 @@ export class PmhqQQProtocol extends QQProtocolBase {
 
   constructor(ctx: Context) {
     super(ctx)
-    // 只有 isPmhqMode() 为真才会 plugin 到这个类, ?? 分支实际走不到, 纯为类型收口
-    const { host, port } = getPmhqTarget() ?? { host: '127.0.0.1', port: '13000' }
+    const { host, port } = getPmhqTarget()
     this.httpUrl = `http://${host}:${port}/`
     this.wsUrl = `ws://${host}:${port}/ws`
   }

@@ -1,4 +1,4 @@
-import { selfInfo, authTokenStatus, TEMP_DIR } from '@/common/globalVars'
+import { selfInfo, TEMP_DIR } from '@/common/globalVars'
 import { randomUUID } from 'node:crypto'
 import { existsSync, mkdirSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
@@ -35,7 +35,7 @@ declare module 'cordis' {
  * QQProtocolBase: PMHQ / Direct 两模式共享的抽象层.
  * - sendPB/get_is_connected/start/getLoginQrCode 是 abstract, 由子类按各自传输实现.
  * - sendOidb / onDisconnect / maybeEmitOnline 是通用工具, 在这里定型.
- * - 具体实现: PmhqQQProtocol (WS+HTTP) / DirectQQProtocol (native sign + TCP).
+ * - Implementation: external PmhqQQProtocol (WS+HTTP).
  */
 export abstract class QQProtocolBase extends Service {
   static inject = ['config']
@@ -125,7 +125,6 @@ export abstract class QQProtocolBase extends Service {
   /**
    * 模式启动入口. cordis Service.init 里 await 一次:
    * - PMHQ: 起 WS 连接 + 登录探测
-   * - Direct: 起 authTokenWatcher, 校验通过后拉起扫码 loop
    */
   protected abstract start(): Promise<void>
 
@@ -157,7 +156,6 @@ export abstract class QQProtocolBase extends Service {
     if (!selfInfo.uid && !selfInfo.uin) return
     this.onlineEmitted = true
     this.qrAutoRefreshCount = 0
-    authTokenStatus.loginError = '' // 登录成功, 清掉登录错误
     this.ctx.parallel('qq/online')
   }
 

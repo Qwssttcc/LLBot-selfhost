@@ -1,6 +1,5 @@
 import { QQProtocolBase } from './base'
 import { PmhqQQProtocol } from './pmhq'
-import { DirectQQProtocol } from './direct'
 import { FriendMixin, GroupMixin, MediaMixin, MessageMixin, SystemMixin, UserMixin } from './mixins'
 
 export type {
@@ -16,7 +15,6 @@ export type {
 
 export { QQProtocolBase } from './base'
 export { PmhqQQProtocol } from './pmhq'
-export { DirectQQProtocol } from './direct'
 
 
 type Constructor<T = object> = abstract new (...args: any[]) => T
@@ -49,10 +47,8 @@ function applyMixins<TBase extends new (...args: any[]) => object, TMixins exten
 const mixins = [GroupMixin, FriendMixin, MediaMixin, MessageMixin, UserMixin, SystemMixin] as const
 
 /**
- * 两个模式的 Service 类分别 apply 所有 OIDB mixins.
- * main.ts 根据 isPmhqMode() 二选一 ctx.plugin(...) 一次.
+ * Apply the existing protocol mixins to the external PMHQ service.
  */
-export const DirectQQProtocolClient = applyMixins(DirectQQProtocol, mixins)
 export const PmhqQQProtocolClient = applyMixins(PmhqQQProtocol, mixins)
 
 // ctx.qqProtocol 静态类型: 因为两个具体实现类都有同一套 mixin 方法, 用 InstanceType 的 union
