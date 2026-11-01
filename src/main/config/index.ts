@@ -7,7 +7,7 @@ import path from 'node:path'
 import fs from 'node:fs'
 import JSON5 from 'json5'
 import { mergeNewProperties } from '@/common/utils'
-import { getSpecifiedUin, isDevMode } from '@/common/utils/environment'
+import { getSpecifiedUin } from '@/common/utils/environment'
 
 declare module 'cordis' {
   interface Context {
@@ -312,43 +312,4 @@ class WebUITokenUtil {
 }
 
 export const webuiTokenUtil = new WebUITokenUtil(path.join(DATA_DIR, 'webui_token.txt'))
-
-// data/auth_token.txt (--dev: data/auth_token.dev.txt, keeps the local-manager token apart from the real one)
-class AuthTokenUtil {
-  private token: string = ''
-  private loaded = false
-
-  constructor(private readonly tokenPath: string) {
-    this.tokenPath = tokenPath
-  }
-
-  getToken() {
-    if (!this.loaded) {
-      if (fs.existsSync(this.tokenPath)) {
-        this.token = fs.readFileSync(this.tokenPath, 'utf-8').trim()
-      }
-      this.loaded = true
-    }
-    return this.token
-  }
-
-  /** 绝对路径, 给报错提示直接告诉用户去哪贴 token. */
-  getPath() {
-    return path.resolve(this.tokenPath)
-  }
-
-  setToken(token: string) {
-    this.token = token.trim()
-    fs.writeFileSync(this.tokenPath, this.token, 'utf-8')
-    this.loaded = true
-  }
-
-  reload() {
-    this.loaded = false
-    return this.getToken()
-  }
-}
-
-export const authTokenUtil = new AuthTokenUtil(path.join(DATA_DIR, isDevMode() ? 'auth_token.dev.txt' : 'auth_token.txt'))
-
 
