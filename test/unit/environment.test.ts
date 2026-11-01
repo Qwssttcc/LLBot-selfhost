@@ -1,62 +1,31 @@
 import { describe, it, expect, vi } from 'vitest'
-
-// setup.ts 把整个 environment 模块 mock 掉了, 这里要测真实实现
 vi.unmock('@/common/utils/environment')
-
 import { getPmhqTarget, isPmhqMode } from '@/common/utils/environment'
-
 const argv = (...args: string[]) => ['node', 'main.ts', ...args]
-
-describe('getPmhqTarget', () => {
-  it('returns null without --pmhq-port', () => {
-    expect(getPmhqTarget(argv('--qq', '10001'))).toBeNull()
-    expect(getPmhqTarget(argv('--pmhq-host=10.0.0.2'))).toBeNull()
+describe('external-PMHQ-only target', () => {
+  it('defaults to local PMHQ rather than native signing', () => {
+    expect(getPmhqTarget(argv())).toEqual({host:'127.0.0.1',port:'13000'})
+    expect(getPmhqTarget(argv('--pmhq-host=pmhq'))).toEqual({host:'pmhq',port:'13000'})
+    expect(isPmhqMode()).toBe(true)
   })
-
-  it('accepts both the space and the equals form', () => {
-    expect(getPmhqTarget(argv('--pmhq-port', '13001'))).toEqual({ host: '127.0.0.1', port: '13001' })
-    expect(getPmhqTarget(argv('--pmhq-port=13001'))).toEqual({ host: '127.0.0.1', port: '13001' })
-    expect(getPmhqTarget(argv('--pmhq-port', '13001', '--pmhq-host', '10.0.0.2'))).toEqual({
-      host: '10.0.0.2',
-      port: '13001',
-    })
-    expect(getPmhqTarget(argv('--pmhq-port=13001', '--pmhq-host=10.0.0.2'))).toEqual({
-      host: '10.0.0.2',
-      port: '13001',
-    })
+  it.each([
+    ['--pmhq-port','13001','--pmhq-host','pmhq'],
+    ['--pmhq-port=13001','--pmhq-host=pmhq'],
+  ])('accepts explicit host and port: %s', (...args) => {
+    expect(getPmhqTarget(argv(...args))).toEqual({host:'pmhq',port:'13001'})
   })
-
-  it('still enables PMHQ when the flag carries no value', () => {
-    expect(getPmhqTarget(argv('--pmhq-port'))).toEqual({ host: '127.0.0.1', port: '13000' })
-    expect(getPmhqTarget(argv('--pmhq-port='))).toEqual({ host: '127.0.0.1', port: '13000' })
+  it.each(['0','65536','-1','abc','13000/path',''])('rejects invalid ports: %s', port => {
+    expect(() => getPmhqTarget(argv('--pmhq-port='+port))).toThrow()
   })
-
-  it('does not swallow the next flag as the value', () => {
-    expect(getPmhqTarget(argv('--pmhq-port', '--dev'))).toEqual({ host: '127.0.0.1', port: '13000' })
-    expect(getPmhqTarget(argv('--pmhq-host', '--dev', '--pmhq-port=13001'))).toEqual({
-      host: '127.0.0.1',
-      port: '13001',
-    })
+  it.each(['','http://pmhq','host/path','name@host','a b'])('rejects invalid hosts: %s', host => {
+    expect(() => getPmhqTarget(argv('--pmhq-host='+host))).toThrow()
   })
-
-  it('keeps working next to the other flags', () => {
-    const t = getPmhqTarget(argv('--qq', '721011692', '--pmhq-port', '13001', '--dev'))
-    expect(t).toEqual({ host: '127.0.0.1', port: '13001' })
+  it('rejects missing arguments instead of choosing another backend', () => {
+    expect(() => getPmhqTarget(argv('--pmhq-port','--dev'))).toThrow()
+    expect(() => getPmhqTarget(argv('--pmhq-host'))).toThrow()
   })
-})
-
-describe('isPmhqMode', () => {
-  it('follows process.argv', () => {
-    const real = process.argv
-    try {
-      process.argv = argv('--qq', '10001')
-      expect(isPmhqMode()).toBe(false)
-      process.argv = argv('--pmhq-port', '13001')
-      expect(isPmhqMode()).toBe(true)
-      process.argv = argv('--pmhq-port=13001')
-      expect(isPmhqMode()).toBe(true)
-    } finally {
-      process.argv = real
-    }
+  it('legacy Direct flags cannot enable Direct mode', () => {
+    expect(getPmhqTarget(argv('--dev','--cdn=china'))).toEqual({host:'127.0.0.1',port:'13000'})
+    expect(isPmhqMode()).toBe(true)
   })
 })
