@@ -28,10 +28,9 @@ import { version } from '../version'
 import { WebuiServer } from '../webui/BE/server'
 import EmailNotificationService from '@/common/emailNotification'
 import { EmailConfig } from '@/common/emailConfig'
-import { isPmhqMode } from '@/common/utils/environment'
 import { setConfigLogLevel, isDebugEnabled, bindLoggerFactory, getLogger } from '@/common/logger'
 import { pathToFileURL } from 'node:url'
-import { DirectQQProtocolClient, PmhqQQProtocolClient } from './qqProtocol'
+import { PmhqQQProtocolClient } from './qqProtocol'
 import LoggerConsole from '@cordisjs/plugin-logger-console'
 import TimerService from '@cordisjs/plugin-timer'
 import ConfigService from './config'
@@ -73,13 +72,12 @@ async function onLoad() {
       default: isDebugEnabled() ? 3 : 2
     }
   })
-  // 让无 ctx 的底层模块 (client/sign/connection 等) 经 getLogger 也走统一 cordis logger
+  // Route shared helper logging through the Cordis logger.
   bindLoggerFactory((name) => ctx.logger(name))
   ctx.plugin(TimerService)
   ctx.plugin(ConfigService)
-  // 模式二选一: PMHQ 走 WS/HTTP, Direct 走 native sign + TCP + WebUI 扫码.
-  // 之后 ctx.qqProtocol 就是选中的实现, 上层代码不感知模式.
-  ctx.plugin(isPmhqMode() ? PmhqQQProtocolClient : DirectQQProtocolClient)
+  // External PMHQ is the only backend in this distribution.
+  ctx.plugin(PmhqQQProtocolClient)
   ctx.plugin(NTFileApi)
   ctx.plugin(NTFriendApi)
   ctx.plugin(NTGroupApi)
@@ -161,10 +159,10 @@ async function onLoad() {
       ctx.logger.info('协议层断开，等待重连…')
     })
 
-    // 两种模式都启动 IPC server: Desktop 统一通过 IPC 拿 uin/昵称
+    // Optional local IPC for an external desktop client.
     startIpcServer()
     setLoginState({ state: 'initializing' })
-    // 具体登录流程 (PMHQ 探测 / Direct 扫码 loop) 都在 impl 的 Service.init 里跑, main.ts 不管
+    // PMHQ connection and login probing remain in the protocol service.
   })
 
   // 全局兜底：单个 orphaned rejection / 未捕获异常不该拖垮整个 bot 进程。
