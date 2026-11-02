@@ -1,0 +1,19 @@
+{
+  "strict_delivery_config_json": true,
+  "source_jsonc_preserved": true,
+  "initializer_creates_separate_credentials": true,
+  "initializer_refuses_overwrite": true,
+  "empty_qq_profile": true,
+  "llbot_node_syntax": true,
+  "native_linux_amd64": true,
+  "jwt_scan_hits": 0,
+  "acknowledgement": "@hairuiaa",
+  "no_live_service_changes": true,
+  "compose_schema_passed": true,
+  "supervisor_shell_syntax_passed": true,
+  "nginx_example_syntax_passed": true,
+  "no_services_started_or_changed": true,
+  "acknowledgement_github_profile": "https://github.com/hairuiaa",
+  "acknowledgement_markdown_link_checked": true,
+  "original_llbot_license_preserved": true
+}

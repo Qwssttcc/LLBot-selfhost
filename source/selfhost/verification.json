@@ -1,0 +1,96 @@
+{
+  "version": "8.3.2-selfhost.2",
+  "upstream": {
+    "repository": "https://github.com/LLOneBot/LuckyLilliaBot",
+    "tag": "v8.3.2",
+    "commit": "dc2b2b90092ef0f571b5546878288b83fff1e436"
+  },
+  "unit_tests": {
+    "passed": 208,
+    "failed": 0,
+    "files_passed": 21
+  },
+  "backend_build": true,
+  "frontend_build": true,
+  "backend_typecheck": true,
+  "frontend_typecheck": {
+    "fork_errors": 105,
+    "upstream_errors": 105,
+    "identical_diagnostics": false,
+    "same_dependency_lock": true,
+    "fork_ui_restored": true,
+    "identical_diagnostics_ignoring_line_shift": true
+  },
+  "pure_protocol_helpers": [
+    {
+      "file": "appInfo.ts",
+      "unchanged": true
+    },
+    {
+      "file": "cmd.ts",
+      "unchanged": true
+    },
+    {
+      "file": "machineGuid.ts",
+      "unchanged": true
+    },
+    {
+      "file": "profiles/index.ts",
+      "unchanged": true
+    },
+    {
+      "file": "profiles/linux.ts",
+      "unchanged": true
+    },
+    {
+      "file": "profiles/macos.ts",
+      "unchanged": true
+    },
+    {
+      "file": "profiles/types.ts",
+      "unchanged": true
+    },
+    {
+      "file": "profiles/watch.ts",
+      "unchanged": true
+    },
+    {
+      "file": "profiles/windows.ts",
+      "unchanged": true
+    }
+  ],
+  "runtime": {
+    "artifact_registration_markers": [],
+    "native_signing_modules": [],
+    "server_modified": false,
+    "real_qq_login_tested": false,
+    "network_scope": "loopback only",
+    "webui_http_status": 200,
+    "protected_status_without_password": 403,
+    "backend_status": {
+      "mode": "external-pmhq",
+      "connected": false,
+      "online": false
+    },
+    "login_online": false,
+    "removed_registration_endpoint_status": 404,
+    "platform_token_file_created": false,
+    "status": "passed_controller_smoke_only",
+    "process_stopped": true
+  },
+  "qq_login_restored": false,
+  "external_backend_required": true,
+  "github_branch": "selfhost/external-pmhq-v8",
+  "external_legacy_pmhq_acceptance": {
+    "webui_http_status": 200,
+    "unauthenticated_api_status": 403,
+    "connected": true,
+    "qq_online": false,
+    "qr_api_status": 200,
+    "qr_api_ready": true,
+    "registration_endpoint_status": 404,
+    "original_runtime_unchanged_during_acceptance": true
+  },
+  "real_qq_login_tested": false,
+  "verification_scope": "Controller build and isolated external backend acceptance; deployed-service status is tracked separately."
+}

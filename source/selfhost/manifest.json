@@ -1,0 +1,25 @@
+{
+  "fork_version": "8.3.2-selfhost.2",
+  "node_major": 24,
+  "upstream": {
+    "repository": "https://github.com/LLOneBot/LuckyLilliaBot",
+    "tag": "v8.3.2",
+    "commit": "dc2b2b90092ef0f571b5546878288b83fff1e436"
+  },
+  "artifacts": {
+    "yarn": {
+      "name": "@yarnpkg/cli-dist",
+      "version": "4.18.0",
+      "url": "https://registry.npmjs.org/@yarnpkg/cli-dist/-/cli-dist-4.18.0.tgz",
+      "sha256": "606e7e2dfc8bcc24e1b3a70a1043288a271ad2cc71cf42248fadc25f5938a497",
+      "cache_file": "yarn-4.18.0.tgz"
+    },
+    "pnpm": {
+      "name": "pnpm",
+      "version": "11.25.0",
+      "url": "https://registry.npmjs.org/pnpm/-/pnpm-11.25.0.tgz",
+      "sha256": "33dd0748f27e7916c4f1c8b6943461983e3453b06bbda6312a6280130b4881e5",
+      "cache_file": "pnpm-11.25.0.tgz"
+    }
+  }
+}

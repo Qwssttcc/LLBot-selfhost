@@ -1,5 +1,5 @@
-*.md
-.git
-node_modules
-src/webui/FE/node_modules
-data
+*
+!runtime/**
+!native/**
+!deploy/**
+!config/**

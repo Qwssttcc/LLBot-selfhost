@@ -1,0 +1,21 @@
+# Linux amd64. Base and QQ installer are external, checksum-pinned inputs.
+FROM linyuchen/pmhq@sha256:cfad7539d137813def4c6fe58861d852cbc269963e3582ec66a9f6cf9731fa50
+USER root
+ARG QQ_URL=https://github.com/Rodert/qq-versions/releases/download/qq-packages-20260720-ffedf7c6/QQ_3.2.31_260710_amd64_01.deb
+ARG QQ_SHA256=02f677feb1ce01ed293a3c7761e5dd85bd79936f57dcaa4cdb53178ae30e3d6d
+RUN curl --fail --location --show-error --retry 3 --output /tmp/qq.deb "$QQ_URL" \
+ && echo "$QQ_SHA256  /tmp/qq.deb" | sha256sum -c - \
+ && dpkg -i /tmp/qq.deb \
+ && rm -f /tmp/qq.deb \
+ && command -v python3 && command -v Xvfb && command -v dbus-run-session
+COPY native/pmhq-linux-x64 /opt/pmhq
+COPY native/libpmhq.so /opt/libpmhq.so
+COPY config/pmhq_config.json /opt/pmhq_config.json
+COPY deploy/start-compatible.sh /opt/start-compatible.sh
+RUN echo '8ba6fea8f69542259bff3da2fb4be567794147cd18000300e3dab9fb42f6c391  /opt/pmhq' | sha256sum -c - \
+ && echo 'c9c0ec105195940ee5250cf2944d589f0b9252eb3f19ac1f4f7d8d76091529f3  /opt/libpmhq.so' | sha256sum -c - \
+ && echo '18cfee3b7f8827d15760afbd6686ad4d1dd9a3fb7e2f91f4e1997a9a3bbaae12  /opt/QQ/resources/app/wrapper.node' | sha256sum -c - \
+ && chmod 755 /opt/pmhq /opt/start-compatible.sh
+WORKDIR /opt
+ENTRYPOINT ["/bin/sh", "/opt/start-compatible.sh"]
+CMD []

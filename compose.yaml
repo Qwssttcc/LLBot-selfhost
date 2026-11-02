@@ -1,0 +1,47 @@
+name: llbot-compatible
+services:
+  pmhq:
+    platform: linux/amd64
+    image: llbot-compatible/pmhq:7.3.2-qq3.2.31
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.pmhq
+    restart: "no"
+    mem_limit: 1536m
+    memswap_limit: 2g
+    pids_limit: 512
+    shm_size: 128m
+    environment:
+      TZ: Asia/Shanghai
+      AUTO_LOGIN_QQ: ""
+      AUTH_TOKEN: ""
+      PMHQ_AUTH_TOKEN: ""
+      RUST_LOG: info
+    volumes:
+      - ./state/qq-home:/root
+    networks: [connector]
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+  llbot:
+    platform: linux/amd64
+    image: llbot-compatible/llbot:8.3.2-selfhost.2
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.llbot
+    restart: "no"
+    depends_on: [pmhq]
+    mem_limit: 384m
+    memswap_limit: 768m
+    ports:
+      - "127.0.0.1:3080:3080"
+      - "127.0.0.1:5010:5010"
+    volumes:
+      - ./state/llbot-data:/app/llbot/data
+      - ./state/llbot-default.json:/app/llbot/default_config.json:ro
+    networks: [connector]
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+networks:
+  connector: {driver: bridge}

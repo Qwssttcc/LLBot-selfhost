@@ -1,0 +1,39 @@
+{
+  "package": "LLBot-PMHQ7-QQ3.2.31-compatible",
+  "date_beijing": "2026-11-02",
+  "acknowledgement": {
+    "label": "@hairuiaa",
+    "url": "https://github.com/hairuiaa",
+    "kind": "github_profile",
+    "github_profile_exists_verified": true
+  },
+  "architecture": "linux/amd64",
+  "llbot_source_commit": "01e51b6bae3a9a28eae86ca3a01cfc64fe7351c0",
+  "source_documentation_overlay_only": true,
+  "llbot_upstream_commit": "dc2b2b90092ef0f571b5546878288b83fff1e436",
+  "versions": {
+    "llbot": "8.3.2-selfhost.2",
+    "pmhq": "7.3.2",
+    "qq": "3.2.31-51102"
+  },
+  "deployed_llbot_image_id": "sha256:85f4c3af69998f73149add00f068fd1a7e9b1a2178e5e70696bd204fbc7dae78",
+  "deployed_pmhq_image_id": "sha256:261ce20c706a3c6cf40283de8d0e0c552f6dd1780c017eb55a7d2a84684a4fa4",
+  "runtime_llbot_js_sha256": "bda76656c5e2702c32a9455d7db106990fbbf7aa767a3de3e73387d6bc913a3b",
+  "deployed_supervisor_sha256": "47a788355e67d9329187fe30943eafa89bf54aa22be78252bf36eb5532c2ea5d",
+  "native_binaries_unmodified": true,
+  "pmhq_native_source_included": false,
+  "account_data_included": false,
+  "credentials_included": false,
+  "docker_images_included": false,
+  "qq_installer_included": false,
+  "new_machine_build_recipe_end_to_end_verified": false,
+  "qq_installer": {
+    "url": "https://github.com/Rodert/qq-versions/releases/download/qq-packages-20260720-ffedf7c6/QQ_3.2.31_260710_amd64_01.deb",
+    "sha256": "02f677feb1ce01ed293a3c7761e5dd85bd79936f57dcaa4cdb53178ae30e3d6d"
+  },
+  "expected_qq_wrapper_sha256": "18cfee3b7f8827d15760afbd6686ad4d1dd9a3fb7e2f91f4e1997a9a3bbaae12",
+  "repository_branch": "selfhost/pmhq7-qq331-compatible",
+  "license_file": "LICENSE",
+  "llbot_license": "GPL-2.0",
+  "third_party_terms": "THIRD-PARTY-NOTICES.md"
+}

@@ -1,8 +1,0 @@
-{
-  "fork_errors": 105,
-  "upstream_errors": 105,
-  "identical_diagnostics": false,
-  "same_dependency_lock": true,
-  "fork_ui_restored": true,
-  "identical_diagnostics_ignoring_line_shift": true
-}

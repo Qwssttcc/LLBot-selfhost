@@ -1,55 +1,74 @@
-# LLBot 8.3.2-selfhost.2（外部 PMHQ 专用实验分支）
+# LLBot + PMHQ7 / QQ 3.2.31 兼容项目包
 
-基于官方 `v8.3.2`，用于升级 LLBot 控制器、WebUI、Milky/OneBot/Satori 适配层。本分支不包含 LLBot 平台注册客户端和直连签名后端。
+**特别鸣谢 [@hairuiaa](https://github.com/hairuiaa)。**
 
-**这不是完整的 QQ 后端，也不是“已经能登录的免 Token QQ”。** 需要自行提供可运行、与 QQ 版本兼容的外部 PMHQ。不会绕过外部后端自己的鉴权、账号授权或 QQ 的登录校验。
+本包整理了2026-11-02在新机完成有限真实收发验证并切换的兼容方案：LLBot `8.3.2-selfhost.2` + 官方PMHQ `7.3.2` + QQ Linux `3.2.31-51102`。不需要LLBot平台注册Token，本地WebUI密码和API认证继续保留。
 
-## 本次移除与保留
+这是PMHQ7搭配较新版QQ的兼容方案，不是PMHQ9原生源码重编译版。PMHQ原生二进制没有改动；只附官方7.3.2发布组件和验证过的偏移/启动配置。扫码和真实QQ登录校验仍正常执行。
 
-- 移除平台注册 Token 文件读写、状态轮询、提交接口、注册弹窗、CDN/注册站点选择、直连实现和原生 SignProxy 二进制。
-- 启动只连接外部 PMHQ；不传参数时为 `127.0.0.1:13000`，参数错误会明确失败，不会切换到直连。
-- 保留 WebUI 密码、密码散列校验、访问失败锁定，以及 Milky/OneBot/Satori 本地接口认证。
-- 将 PMHQ 依赖的纯协议辅助函数从直连模块中分离，保留其原有内容和发送/错误语义。
-- `/api/backend-status` 在现有 WebUI 密码保护后返回真实的连接与 QQ 在线状态；连接建立不代表 QQ 已登录。
+## 包含哪些内容
 
-## PMHQ 7 显式兼容模式
+| 目录/文件 | 内容 |
+|---|---|
+| `source/` | LLBot Fork源码、锁文件、构建工具入口、测试及GPL许可 |
+| `runtime/` | 已构建LLBot主程序、WebUI、运行依赖，主程序摘要与新机一致 |
+| `native/` | PMHQ7.3.2 x86_64可执行程序和libpmhq.so |
+| `config/` | 已清空账号字段的偏移配置、无实际凭证的LLBot配置模板 |
+| `deploy/` | 实际部署的进程监督启动器、独立安装Dockerfile、初始化脚本、Nginx例子 |
+| `docs/` | 部署、验证、限制、回滚与备份说明 |
+| `manifest.json`、`CHECKSUMS.sha256` | 版本来源与逐文件校验 |
+| `ACKNOWLEDGEMENTS.md` | 鸣谢 [@hairuiaa](https://github.com/hairuiaa) |
 
-新机使用的 PMHQ 7.3.2 没有新版 `/get_login_qrcode` 和包含账号标识的 `/health`。本版增加 `--pmhq-legacy`，通过原有 `getSelfInfo` 和 `loginService.getQRCodePicture` RPC/回调读取真实状态和二维码；不会自动将后端验证失败切换成另一种模式。
+没有打入QQ账号资料、密码、访问Token、SSH密钥、聊天内容、服务器备份或原始日志。不是服务器磁盘克隆。**Docker基础镜像、QQ安装包、Node工具链不包含在ZIP中，首次构建需联网获取；不是完整离线镜像包。**
 
-```sh
-node llbot.js --pmhq-host luckylillia-pmhq --pmhq-port 13000 --pmhq-legacy
-```
+## 适用环境与快速开始
 
-二维码请求同时等待真实 RPC 接受与有效二维码回调，超时或失败会清理监听器并返回失败；在线标记须由后端报告 online=true 且提供有效账号标识。此适配不修改 QQ、PMHQ 原生二进制或签名服务，不能解决过期 QQ 客户端的登录限制。
+Linux x86_64 + Docker Engine/Compose v2 + Python3。Windows上需使用Linux容器环境/WSL2，不可直接运行Linux注入库。仅作独立实例安装；本包不自动改动任何已有服务器、账号或海豹连接。
 
-## 当前兼容性限制
-
-2026-11-01 新机试验中的旧 QQ `3.2.18-36497` 被 QQ 提示“版本过低或已过期”。旧 PMHQ `7.3.2` 搭配较新 QQ 的隔离试验还缺少适配偏移文件，其官方旧下载域名已经无法解析。升级 LLBot 控制器不能补齐这些底层数据。
-
-本包不附带 PMHQ、QQ 安装包、SignProxy、ManagerServer、签名服务或偏移生成器，不修改 QQ 版本声明，不伪造授权成功。已完成外部 PMHQ 7 的隔离容器验收及控制器部署：真实二维码接口可用；尚未完成真实 QQ 登录或消息发送测试。
-
-## 使用（先准备可用的外部后端）
-
-要求 Node.js 24。解压运行包，在该目录运行：
+解压后在项目根目录运行：
 
 ```sh
-node llbot.js --pmhq-host 127.0.0.1 --pmhq-port 13000
+python3 deploy/init-config.py
+# 输入自选WebUI密码；留空会生成密码并仅在你的本机显示。
+docker compose config --quiet
+docker compose build
+docker compose up -d
 ```
 
-默认管理入口 `http://127.0.0.1:3080/`。首次访问按页面设置 WebUI 密码；不要将无密码管理接口暴露公网。QQ 的扫码、登录和版本兼容由外部 PMHQ/QQ 处理。
+打开本机 `http://127.0.0.1:3080/`，使用刚设置/生成的WebUI密码，再用独立测试QQ扫码。部署在远程服务器时先建立SSH本地转发：
 
-容器环境下 `--pmhq-host` 应为可达的 PMHQ 服务名或地址；不建议向公网开放 PMHQ 底层控制端口。
+```sh
+ssh -N -L 3080:127.0.0.1:3080 USER@YOUR_SERVER
+```
 
-## 构建与验证
+随后在运行SSH的电脑打开相同localhost地址。基础配置仅将WebUI3080和Milky5010绑定到服务器回环地址，PMHQ13000不公开。不要把localhost误当作其他电脑的地址。可选Nginx `/llbot/` 入口见 `deploy/nginx-llbot.example.conf`，样例仅监听回环8080，不会自动安装；保留WebUI认证，并包含当前构建登录后保持代理原地址的修复。
 
-构建工具和上游提交固定在 `selfhost/manifest.json`。`python selfhost/build.py --node /path/to/node` 会校验下载的工具，关闭依赖安装脚本，按锁文件安装后端和前端依赖，编译并运行测试与产物审计。不下载或启动 QQ。
+本包配置默认不自动重启（与本次部署保留策略一致）。机器重启后需手动启动；如后续决定自启，应先完成稳定性评估再明确调整restart策略。
 
-上游前端锁文件与其依赖声明不一致，本分支已重新生成并锁定。208 项保留/新增单元与 WebUI 测试已通过，后端类型检查通过。前端生产编译成功，但完整前端类型检查仍有 105 项错误；在相同依赖下恢复原始上游 UI 对照，错误内容完全一致（仅移除代码造成行号变化）。这些遗留问题没有被关闭或改成忽略，故目前为实验版。
+## 接入海豹
 
-已移除功能对应的 5 个直连专用测试与上游自动发布/安装脚本不适用于本分支，清单在 `selfhost/removed-features.json`；其他测试继续运行。
+本包不含海豹程序或插件。Milky默认在容器内5010启用，访问密钥由初始化脚本生成，保存在本机 `state/api-access.secret`，不在本包中预置。LLBot账户最终配置以WebUI显示为准。
 
-## 部署与回退
+- 同一Docker网络的海豹可使用 `http://llbot:5010/api`；容器名称仅在同一网络可解析。
+- 宿主机服务可使用 `http://127.0.0.1:5010/api`。
+- 不同服务器需要另行规划受保护的连接，不要把该示例直接换成无认证公网端口。
+- 接入时填写Milky访问Token，而不是WebUI密码或平台注册Token。
 
-部署前需先验证外部后端。控制器验收通过不代表 QQ 已能登录；更换前备份容器配置、镜像和数据，使用独立测试账号。回退应恢复原镜像与原配置，不共用在线账号的数据目录。
+本次新机海豹QQ连接原为停用，切换后保持停用，没有接管旧机业务。
 
-源码采用原项目 GPL-2.0 许可，保留原版权与 LICENSE。上游：https://github.com/LLOneBot/LuckyLilliaBot/tree/v8.3.2 。
+## 构建、验证与后续维护
+
+源码基于官方v8.3.2，Fork提交固定在manifest。重新构建LLBot：准备Node24与Python3，在source目录执行 `python3 selfhost/build.py --node /path/to/node`。该脚本仅构建控制端，不构建PMHQ原生组件；PMHQ本包没有原生源码。原验证208项测试通过，后端类型检查通过，前端生产构建通过；完整前端类型检查仍存在105项与上游一致的遗留错误，未宣称全部类型检查通过。
+
+私聊文本、PNG、两节点合并记录有限双向测试已通过。新机已实际扫码在线，但群消息、并发、长期内存/句柄稳定性、全部媒体格式与全部kernel RPC未验证。1.5GiB内存上限曾出现限额回收压力而没有OOM，不能据此认定没有泄漏。新空白机器上的Docker配方只做静态/配置核验，不冒称已完整重建与扫码验收。详见 `docs/验证与限制.md`。
+
+QQ版本与偏移必须配套，不能只修改版本号、下载地址或复用其他版本偏移。后续QQ版本策略可能改变，本包不承诺永久可登录。更新前备份并使用独立测试账号验证，可按 `docs/回滚与备份.md` 恢复。
+
+## 来源与许可
+
+- LLBot上游：https://github.com/LLOneBot/LuckyLilliaBot
+- LLBot Fork：https://github.com/Qwssttcc/LLBot-selfhost/tree/selfhost/external-pmhq-v8
+- PMHQ：https://github.com/linyuchen/PMHQ
+- 原LLBot GPL-2.0版权/许可与依赖许可保留；PMHQ、QQ分别遵循各自条款，详见 `THIRD-PARTY-NOTICES.md`。本分支保留原始 `LICENSE`，GitHub可识别GNU GPL v2.0；第三方组件按各自条款，不以此重新许可。
+
+**特别鸣谢 [@hairuiaa](https://github.com/hairuiaa)。**

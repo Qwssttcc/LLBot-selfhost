@@ -1,0 +1,60 @@
+{
+  "date_beijing": "2026-11-02",
+  "versions": {
+    "llbot": "8.3.2-selfhost.2",
+    "pmhq": "7.3.2",
+    "qq": "3.2.31-51102"
+  },
+  "real_message_test": {
+    "private_text_sent": 1,
+    "png_sent": 1,
+    "two_node_forward_sent": 1,
+    "text_received": 1,
+    "image_received": 1,
+    "forward_received_and_read": 1,
+    "client_delivery_confirmed": true,
+    "text_api_ms": 130.37,
+    "png_api_ms": 886.82,
+    "forward_api_ms": 230.14
+  },
+  "new_server_cutover": {
+    "qq_online_verified": true,
+    "user_manual_scan_required": true,
+    "local_api_unauthorized_status": 403,
+    "other_containers_unchanged": true,
+    "old_server_touched": false,
+    "sealdice_connection_left_disabled": true
+  },
+  "resource_snapshot": {
+    "pids.current": 174,
+    "pids.events": {
+      "max": 0
+    },
+    "memory.current": 1563160576,
+    "memory.events": {
+      "low": 0,
+      "high": 0,
+      "max": 1035,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0
+    }
+  },
+  "limits": {
+    "memory_bytes": 1610612736,
+    "memory_swap_total_bytes": 2147483648,
+    "pids": 512
+  },
+  "not_verified": [
+    "group messages",
+    "long-term leak/handle stability",
+    "high concurrency",
+    "all media formats",
+    "all old kernel RPC methods",
+    "fresh-machine Docker recipes end-to-end"
+  ],
+  "notes": [
+    "Resource limit reclaim observed without OOM; not proof of no leak.",
+    "Tests are limited samples; API elapsed time excludes client rendering."
+  ]
+}

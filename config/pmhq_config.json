@@ -1,0 +1,13 @@
+{
+  "qq_path": "/opt/QQ/qq",
+  "quick_login_qq": "",
+  "enable_gui": false,
+  "default_host": "0.0.0.0",
+  "default_port": 13000,
+  "debug": false,
+  "debug_pb": false,
+  "qq_console": true,
+  "headless": false,
+  "send_offset": "0x5b9cbc0",
+  "recv_offset": "0x5b9e910"
+}
