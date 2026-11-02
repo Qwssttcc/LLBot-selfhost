@@ -5,6 +5,7 @@ import type {
   PMHQRes,
   PMHQReq,
   PMHQResSendPB,
+  PMHQResLegacyCall,
   PMHQHealth,
   PBData,
   QQResourceUsage,
@@ -14,12 +15,14 @@ import { Context } from 'cordis'
 import { getPmhqTarget } from '@/common/utils/environment'
 import { buildSsoInfoSync } from './protocol-support/ssoInfoSync'
 import { QQProtocolBase } from './base'
+import { LegacyPmhqLogin, usesLegacyPmhq } from './legacyPmhqLogin'
 
 /**
  * PMHQ 模式实现: WS(优先) + HTTP 回退 与 PMHQ dll 通信.
  * QQ NT 早已登录, LLBot 寄生其上; 靠 /health 轮询拿 uin/uid.
  */
 export class PmhqQQProtocol extends QQProtocolBase {
+  private legacyLogin: LegacyPmhqLogin | undefined
   private reconnectTimer: NodeJS.Timeout | undefined
   protected httpUrl: string
   protected wsUrl: string
@@ -36,6 +39,15 @@ export class PmhqQQProtocol extends QQProtocolBase {
     const { host, port } = getPmhqTarget()
     this.httpUrl = `http://${host}:${port}/`
     this.wsUrl = `ws://${host}:${port}/ws`
+    if (usesLegacyPmhq()) this.legacyLogin = new LegacyPmhqLogin(
+      async (func, args, timeout) => {
+        if (!this.get_is_connected()) throw new Error('Legacy PMHQ is disconnected')
+        const response = await this.wsSend<PMHQResLegacyCall>({ type: 'call', data: { func, args } }, timeout)
+        if (response.type !== 'call' || !response.data) throw new Error('Invalid legacy PMHQ RPC response')
+        return response.data.result
+      },
+      listener => { const id = this.addResListener(listener); return () => this.removeResListener(id) },
+    )
   }
 
   protected async start(): Promise<void> {
@@ -128,14 +140,19 @@ export class PmhqQQProtocol extends QQProtocolBase {
     const probe = async () => {
       if (this.pmhqProbeToken !== myToken) return
       try {
-        const resp = await fetch(`${this.httpUrl}health`)
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-        const health = await resp.json() as PMHQHealth
+        let health: { uin?: string | number | null; uid?: string | null; nick?: string }
+        if (this.legacyLogin) health = await this.legacyLogin.readSelfInfo()
+        else {
+          const resp = await fetch(`${this.httpUrl}health`, { signal: AbortSignal.timeout(5000) })
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+          health = await resp.json() as PMHQHealth
+        }
         if (this.pmhqProbeToken !== myToken) return
 
         if (health.uin && health.uid) {
           selfInfo.uid = health.uid
           selfInfo.uin = String(health.uin)
+          if (health.nick) selfInfo.nick = health.nick
           this.ctx.logger.info(`Self info ${selfInfo.nick || '<pending>'}(${selfInfo.uin}) uid=${selfInfo.uid}`)
           if (!selfInfo.online) {
             this.logger.info('QQ 登录成功')
@@ -161,7 +178,7 @@ export class PmhqQQProtocol extends QQProtocolBase {
       }
       if (this.pmhqProbeToken !== myToken) return
       if (selfInfo.online) return
-      setTimeout(probe, 600)
+      setTimeout(probe, this.legacyLogin ? 1000 : 600)
     }
     probe()
   }
@@ -175,7 +192,8 @@ export class PmhqQQProtocol extends QQProtocolBase {
     message?: string
     data?: { pngBase64QrcodeData: string; qrcodeUrl: string; expireTime: number; pollTimeInterval: number }
   }> {
-    const resp = await fetch(`${this.httpUrl}get_login_qrcode`)
+    if (this.legacyLogin) return { code: 0, data: await this.legacyLogin.fetchQr() }
+    const resp = await fetch(`${this.httpUrl}get_login_qrcode`, { signal: AbortSignal.timeout(8000) })
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
     return await resp.json()
   }

@@ -25,8 +25,11 @@ export interface PMHQReqSendPB {
   data: PBData
 }
 
-export type PMHQRes = PMHQResSendPB | PMHQResRecvPB
-export type PMHQReq = PMHQReqSendPB
+export interface PMHQReqLegacyCall { type: 'call'; data: { echo?: string; func: 'getSelfInfo' | 'loginService.getQRCodePicture'; args: unknown[] } }
+export interface PMHQResLegacyCall { type: 'call'; data: { echo?: string; result: unknown } }
+export interface PMHQResLegacyLogin { type: 'nodeIKernelLoginListener'; data: { sub_type: string; data: unknown; echo?: string } }
+export type PMHQRes = PMHQResSendPB | PMHQResRecvPB | PMHQResLegacyCall | PMHQResLegacyLogin
+export type PMHQReq = PMHQReqSendPB | PMHQReqLegacyCall
 
 export interface ResListener<R extends PMHQRes> {
   (data: R): void
