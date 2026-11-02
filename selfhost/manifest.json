@@ -1,5 +1,5 @@
 {
-  "fork_version": "8.3.2-selfhost.1",
+  "fork_version": "8.3.2-selfhost.2",
   "node_major": 24,
   "upstream": {
     "repository": "https://github.com/LLOneBot/LuckyLilliaBot",
