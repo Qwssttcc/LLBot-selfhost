@@ -1,6 +1,6 @@
 {
   "name": "lucky-lillia-bot",
-  "version": "8.3.2-selfhost.1",
+  "version": "8.3.2-selfhost.2",
   "type": "module",
   "description": "External-PMHQ-only LLBot controller; no platform registration client",
   "main": "dist/llbot.js",
