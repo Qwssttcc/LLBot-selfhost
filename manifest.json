@@ -35,5 +35,15 @@
   "repository_branch": "selfhost/pmhq7-qq331-compatible",
   "license_file": "LICENSE",
   "llbot_license": "GPL-2.0",
-  "third_party_terms": "THIRD-PARTY-NOTICES.md"
+  "third_party_terms": "THIRD-PARTY-NOTICES.md",
+  "deployment_update": {
+    "date_beijing": "2026-11-03",
+    "restart_policy": "unless-stopped",
+    "services": [
+      "pmhq",
+      "llbot"
+    ],
+    "existing_container_policy_update_required": true,
+    "host_reboot_tested": false
+  }
 }

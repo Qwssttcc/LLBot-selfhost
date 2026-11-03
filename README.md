@@ -43,7 +43,7 @@ ssh -N -L 3080:127.0.0.1:3080 USER@YOUR_SERVER
 
 随后在运行SSH的电脑打开相同localhost地址。基础配置仅将WebUI3080和Milky5010绑定到服务器回环地址，PMHQ13000不公开。不要把localhost误当作其他电脑的地址。可选Nginx `/llbot/` 入口见 `deploy/nginx-llbot.example.conf`，样例仅监听回环8080，不会自动安装；保留WebUI认证，并包含当前构建登录后保持代理原地址的修复。
 
-本包配置默认不自动重启（与本次部署保留策略一致）。机器重启后需手动启动；如后续决定自启，应先完成稳定性评估再明确调整restart策略。
+PMHQ 和 LLBot 默认使用 `restart: unless-stopped`。Docker 服务随系统启动时，已创建且未被手动停止的容器会自动恢复；手动停止后会保持停止，需再次启动。首次部署仍需执行 `docker compose up -d`，QQ 登录状态也需在 WebUI 单独确认。Linux/systemd 主机请确认 Docker 已启用开机自启（`systemctl is-enabled docker`）。已有部署必须同步更新容器策略，仅修改 YAML 不会改变现有容器；操作及验证见 [开机自启与已有部署升级](docs/开机自启.md)。
 
 ## 接入海豹
 
